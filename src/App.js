@@ -1,24 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import Header from "./components/Header";
+import Weather from "./components/Weather";
+import { usePosition } from "use-position";
 
 function App() {
+  const [weather, setWeather] = useState();
+  const { latitude, longitude } = usePosition();
+  const dil = navigator.language.split("-")[0];
+
+  const getWeather = async (lat, lon) => {
+    var key = process.env.REACT_APP_WEATHER_KEY;
+
+    try {
+      const { data } = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${key}&lang=${dil}&units=metric`
+      );
+      setWeather(data);
+      console.log("data", data);
+    } catch (error) {}
+  };
+  useEffect(() => {
+    latitude && longitude && getWeather(latitude, longitude);
+  }, [latitude, longitude]);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <React.StrictMode>
+      <Header />
+      <Weather weather={weather} />
+    </React.StrictMode>
   );
 }
 
